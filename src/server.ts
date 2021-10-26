@@ -3,7 +3,14 @@ import express from 'express';
 const app = express();
 const port = 3000;
 
+// For parsing application/json
+app.use(express.json());
+
 const users = ['Manuel', 'Leon', 'Anke', 'Zied'];
+
+app.post('/api/users', (request, response) => {
+  response.send(request.body.name);
+});
 
 app.delete('/api/users/:name', (request, response) => {
   const usersIndex = users.indexOf(request.params.name);
