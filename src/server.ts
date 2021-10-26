@@ -5,6 +5,10 @@ const port = 3000;
 
 const users = ['Manuel', 'Leon', 'Anke', 'Zied'];
 
+app.delete('/api/users/:name', (_request, response) => {
+  response.send('DELETE exists');
+});
+
 app.get('/api/users/:name', (request, response) => {
   const isNameKnow = users.includes(request.params.name);
   if (isNameKnow) {
