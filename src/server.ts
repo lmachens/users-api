@@ -9,8 +9,9 @@ app.get('/api/users/:name', (request, response) => {
   const isNameKnow = users.includes(request.params.name);
   if (isNameKnow) {
     response.send(request.params.name);
+  } else {
+    response.status(404).send('This page is not here. Check another Castle 🏰');
   }
-  // if name is unknown, return 404 with "Name is unknown"
 });
 
 app.get('/api/users', (_request, response) => {
