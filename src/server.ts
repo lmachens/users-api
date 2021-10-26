@@ -5,8 +5,15 @@ const port = 3000;
 
 const users = ['Manuel', 'Leon', 'Anke', 'Zied'];
 
-app.delete('/api/users/:name', (_request, response) => {
-  response.send('DELETE exists');
+app.delete('/api/users/:name', (request, response) => {
+  const usersIndex = users.indexOf(request.params.name);
+  if (usersIndex === -1) {
+    response.status(404).send("User doesn't exist. Check another Castle 🏰");
+    return;
+  }
+
+  users.splice(usersIndex, 1);
+  response.send('Deleted');
 });
 
 app.get('/api/users/:name', (request, response) => {
