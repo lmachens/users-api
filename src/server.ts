@@ -3,12 +3,17 @@ import express from 'express';
 const app = express();
 const port = 3000;
 
+const users = ['Manuel', 'Leon', 'Anke', 'Zied'];
+
 app.get('/api/users/:name', (request, response) => {
-  response.send(request.params.name);
+  const isNameKnow = users.includes(request.params.name);
+  if (isNameKnow) {
+    response.send(request.params.name);
+  }
+  // if name is unknown, return 404 with "Name is unknown"
 });
 
 app.get('/api/users', (_request, response) => {
-  const users = ['Manuel', 'Leon', 'Anke'];
   response.send(users);
 });
 
