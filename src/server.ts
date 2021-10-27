@@ -3,13 +3,22 @@ import express from 'express';
 const app = express();
 const port = 3000;
 
-// For parsing application/json
+// Custom middleware to log requests
+app.use((request, _response, next) => {
+  console.log('Request received', request.url);
+  next();
+});
+
+// Middleware for parsing application/json
 app.use(express.json());
 
 const users = ['Manuel', 'Leon', 'Anke', 'Zied'];
 
 app.post('/api/users', (request, response) => {
-  response.send(request.body.name);
+  const newUser = request.body;
+  // users.splice(users.length, 0, newUser.name);
+  users.push(newUser.name);
+  response.send(`${newUser.name} added`);
 });
 
 app.delete('/api/users/:name', (request, response) => {
