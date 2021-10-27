@@ -22,3 +22,15 @@ Content-Type: application/json
     "username": "Bobson",
     "password": "pw"
 }
+
+### Login a user
+POST http://localhost:3000/api/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "lmachens",
+    "password": "asdc"
+}
+
+### Get logged in user
+GET http://localhost:3000/api/me HTTP/1.1
