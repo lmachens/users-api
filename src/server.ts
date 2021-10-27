@@ -35,6 +35,21 @@ const users = [
   },
 ];
 
+app.post('/api/login', (request, response) => {
+  const credentials = request.body;
+  const existingUser = users.find(
+    (user) =>
+      user.username === credentials.username &&
+      user.password === credentials.password
+  );
+
+  if (existingUser) {
+    response.send('Logged in');
+  } else {
+    response.status(401).send('You shall not pass');
+  }
+});
+
 app.post('/api/users', (request, response) => {
   const newUser = request.body;
   if (
