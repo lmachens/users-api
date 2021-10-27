@@ -12,30 +12,51 @@ app.use((request, _response, next) => {
 // Middleware for parsing application/json
 app.use(express.json());
 
-const users = ['Manuel', 'Leon', 'Anke', 'Zied'];
+const users = [
+  {
+    name: 'Manuel',
+    username: 'manuel123',
+    password: '123abc',
+  },
+  {
+    name: 'Leon',
+    username: 'lmachens',
+    password: 'asdc',
+  },
+  {
+    name: 'Anke',
+    username: 'anke9000',
+    password: 'ab',
+  },
+  {
+    name: 'Philipp',
+    username: 'phgrtz',
+    password: 'pw123!',
+  },
+];
 
-app.post('/api/users', (request, response) => {
-  const newUser = request.body;
-  // users.splice(users.length, 0, newUser.name);
-  users.push(newUser.name);
-  response.send(`${newUser.name} added`);
-});
+// app.post('/api/users', (request, response) => {
+//   const newUser = request.body;
+//   // users.splice(users.length, 0, newUser.name);
+//   users.push(newUser.name);
+//   response.send(`${newUser.name} added`);
+// });
 
-app.delete('/api/users/:name', (request, response) => {
-  const usersIndex = users.indexOf(request.params.name);
-  if (usersIndex === -1) {
-    response.status(404).send("User doesn't exist. Check another Castle 🏰");
-    return;
-  }
+// app.delete('/api/users/:name', (request, response) => {
+//   const usersIndex = users.indexOf(request.params.name);
+//   if (usersIndex === -1) {
+//     response.status(404).send("User doesn't exist. Check another Castle 🏰");
+//     return;
+//   }
 
-  users.splice(usersIndex, 1);
-  response.send('Deleted');
-});
+//   users.splice(usersIndex, 1);
+//   response.send('Deleted');
+// });
 
-app.get('/api/users/:name', (request, response) => {
-  const isNameKnow = users.includes(request.params.name);
-  if (isNameKnow) {
-    response.send(request.params.name);
+app.get('/api/users/:username', (request, response) => {
+  const user = users.find((user) => user.username === request.params.username);
+  if (user) {
+    response.send(user);
   } else {
     response.status(404).send('This page is not here. Check another Castle 🏰');
   }
