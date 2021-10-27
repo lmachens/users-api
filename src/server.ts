@@ -35,23 +35,37 @@ const users = [
   },
 ];
 
-// app.post('/api/users', (request, response) => {
-//   const newUser = request.body;
-//   // users.splice(users.length, 0, newUser.name);
-//   users.push(newUser.name);
-//   response.send(`${newUser.name} added`);
-// });
+app.post('/api/users', (request, response) => {
+  const newUser = request.body;
+  if (
+    typeof newUser.name !== 'string' ||
+    typeof newUser.username !== 'string' ||
+    typeof newUser.password !== 'string'
+  ) {
+    response.status(400).send('Missing properties');
+    return;
+  }
 
-// app.delete('/api/users/:name', (request, response) => {
-//   const usersIndex = users.indexOf(request.params.name);
-//   if (usersIndex === -1) {
-//     response.status(404).send("User doesn't exist. Check another Castle 🏰");
-//     return;
-//   }
+  if (users.some((user) => user.username === newUser.username)) {
+    response.status(409).send('User already exists');
+  } else {
+    users.push(newUser);
+    response.send(`${newUser.name} added`);
+  }
+});
 
-//   users.splice(usersIndex, 1);
-//   response.send('Deleted');
-// });
+app.delete('/api/users/:username', (request, response) => {
+  const usersIndex = users.findIndex(
+    (user) => user.username === request.params.username
+  );
+  if (usersIndex === -1) {
+    response.status(404).send("User doesn't exist. Check another Castle 🏰");
+    return;
+  }
+
+  users.splice(usersIndex, 1);
+  response.send('Deleted');
+});
 
 app.get('/api/users/:username', (request, response) => {
   const user = users.find((user) => user.username === request.params.username);
