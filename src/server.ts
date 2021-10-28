@@ -111,17 +111,19 @@ app.delete('/api/users/:username', (request, response) => {
   response.send('Deleted');
 });
 
-app.get('/api/users/:username', (request, response) => {
-  const user = users.find((user) => user.username === request.params.username);
-  if (user) {
-    response.send(user);
+app.get('/api/users/:username', async (request, response) => {
+  const username = request.params.username;
+  const existingUser = await getUserCollection().findOne({ username });
+  if (existingUser) {
+    response.status(200).send(existingUser);
   } else {
     response.status(404).send('This page is not here. Check another Castle 🏰');
   }
 });
 
-app.get('/api/users', (_request, response) => {
-  response.send(users);
+app.get('/api/users', async (_request, response) => {
+  const userDocuments = await getUserCollection().find().toArray();
+  response.status(200).send(userDocuments);
 });
 
 app.get('/', (_req, res) => {
