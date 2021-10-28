@@ -3,7 +3,7 @@ dotenv.config();
 
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import { connectDatabase } from './utils/database';
+import { connectDatabase, getUserCollection } from './utils/database';
 
 if (!process.env.MONGODB_URI) {
   throw new Error('No MONGODB_URI provided');
@@ -73,7 +73,7 @@ app.post('/api/login', (request, response) => {
   }
 });
 
-app.post('/api/users', (request, response) => {
+app.post('/api/users', async (request, response) => {
   const newUser = request.body;
   if (
     typeof newUser.name !== 'string' ||
@@ -84,11 +84,16 @@ app.post('/api/users', (request, response) => {
     return;
   }
 
-  if (users.some((user) => user.username === newUser.username)) {
-    response.status(409).send('User already exists');
+  const userCollection = getUserCollection();
+  const existingUser = await userCollection.findOne({
+    username: newUser.username,
+  });
+
+  if (!existingUser) {
+    const userDocument = await userCollection.insertOne(newUser);
+    response.send(`${newUser.name} added, with ID: ${userDocument.insertedId}`);
   } else {
-    users.push(newUser);
-    response.send(`${newUser.name} added`);
+    response.status(409).send('Username is already taken');
   }
 });
 
