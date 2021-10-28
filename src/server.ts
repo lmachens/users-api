@@ -91,7 +91,8 @@ app.post('/api/users', async (request, response) => {
 
   if (!existingUser) {
     const userDocument = await userCollection.insertOne(newUser);
-    response.send(`${newUser.name} added, with ID: ${userDocument.insertedId}`);
+    const responseDocument = { ...newUser, ...userDocument.insertedId };
+    response.status(200).send(responseDocument);
   } else {
     response.status(409).send('Username is already taken');
   }
