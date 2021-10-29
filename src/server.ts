@@ -98,17 +98,15 @@ app.post('/api/users', async (request, response) => {
   }
 });
 
-app.delete('/api/users/:username', (request, response) => {
-  const usersIndex = users.findIndex(
-    (user) => user.username === request.params.username
-  );
-  if (usersIndex === -1) {
+app.delete('/api/users/:username', async (request, response) => {
+  const username = request.params.username;
+  const deletedUser = await getUserCollection().deleteOne({ username });
+  if (deletedUser.deletedCount === 0) {
     response.status(404).send("User doesn't exist. Check another Castle 🏰");
     return;
   }
 
-  users.splice(usersIndex, 1);
-  response.send('Deleted');
+  response.status(200).send('Deleted');
 });
 
 app.get('/api/users/:username', async (request, response) => {
