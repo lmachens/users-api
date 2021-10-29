@@ -1,5 +1,13 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import { connectDatabase, getUserCollection } from './utils/database';
+
+if (!process.env.MONGODB_URI) {
+  throw new Error('No MONGODB_URI provided');
+}
 
 const app = express();
 const port = 3000;
@@ -65,7 +73,7 @@ app.post('/api/login', (request, response) => {
   }
 });
 
-app.post('/api/users', (request, response) => {
+app.post('/api/users', async (request, response) => {
   const newUser = request.body;
   if (
     typeof newUser.name !== 'string' ||
@@ -76,44 +84,52 @@ app.post('/api/users', (request, response) => {
     return;
   }
 
-  if (users.some((user) => user.username === newUser.username)) {
-    response.status(409).send('User already exists');
+  const userCollection = getUserCollection();
+  const existingUser = await userCollection.findOne({
+    username: newUser.username,
+  });
+
+  if (!existingUser) {
+    const userDocument = await userCollection.insertOne(newUser);
+    const responseDocument = { ...newUser, ...userDocument.insertedId };
+    response.status(200).send(responseDocument);
   } else {
-    users.push(newUser);
-    response.send(`${newUser.name} added`);
+    response.status(409).send('Username is already taken');
   }
 });
 
-app.delete('/api/users/:username', (request, response) => {
-  const usersIndex = users.findIndex(
-    (user) => user.username === request.params.username
-  );
-  if (usersIndex === -1) {
+app.delete('/api/users/:username', async (request, response) => {
+  const username = request.params.username;
+  const deletedUser = await getUserCollection().deleteOne({ username });
+  if (deletedUser.deletedCount === 0) {
     response.status(404).send("User doesn't exist. Check another Castle 🏰");
     return;
   }
 
-  users.splice(usersIndex, 1);
-  response.send('Deleted');
+  response.status(200).send('Deleted');
 });
 
-app.get('/api/users/:username', (request, response) => {
-  const user = users.find((user) => user.username === request.params.username);
-  if (user) {
-    response.send(user);
+app.get('/api/users/:username', async (request, response) => {
+  const username = request.params.username;
+  const existingUser = await getUserCollection().findOne({ username });
+  if (existingUser) {
+    response.status(200).send(existingUser);
   } else {
     response.status(404).send('This page is not here. Check another Castle 🏰');
   }
 });
 
-app.get('/api/users', (_request, response) => {
-  response.send(users);
+app.get('/api/users', async (_request, response) => {
+  const userDocuments = await getUserCollection().find().toArray();
+  response.status(200).send(userDocuments);
 });
 
 app.get('/', (_req, res) => {
   res.send('Hello World 🐱‍👤!');
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
-});
+connectDatabase(process.env.MONGODB_URI).then(() =>
+  app.listen(port, () => {
+    console.log(`Example app listening at http://localhost:${port}`);
+  })
+);
