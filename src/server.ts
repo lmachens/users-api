@@ -1,8 +1,11 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 const app = express();
 const port = 3000;
+
+app.use(cors());
 
 // Custom middleware to log requests
 app.use((request, _response, next) => {
